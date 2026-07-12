@@ -12,9 +12,29 @@ export interface Player {
   alive: boolean;
 }
 
+export interface MultiplayerPlayer {
+  id: string;
+  name: string;
+  role: Role | null;
+  alive: boolean;
+  socketId: string;
+}
+
+export interface GameRoom {
+  code: string;
+  hostId: string;
+  players: MultiplayerPlayer[];
+  gameStarted: boolean;
+  round: number;
+  phase: GamePhase;
+  discussionSeconds: number;
+  lastEliminatedId: string | null;
+  winner: Winner;
+}
+
 export type GamePhase =
   | 'SETUP' // dealer is entering names / settings
-  | 'ROLE_ASSIGNMENT' // players are passing the phone around to view roles
+  | 'ROLE_ASSIGNMENT' // players are viewing their own roles on their devices
   | 'DASHBOARD' // dealer's control screen between rounds
   | 'DISCUSSION' // timer running
   | 'VOTING' // dealer selecting who was voted out
@@ -32,11 +52,19 @@ export interface GameState {
   dealerName: string;
   players: Player[];
   settings: GameSettings;
-  roleRevealIndex: number; // which player is currently viewing their role during ROLE_ASSIGNMENT
+  roleRevealIndex: number; // which player is currently viewing their role during ROLE_ASSIGNMENT (single player mode)
   discussionSeconds: number; // remaining seconds on the timer
   lastEliminatedId: string | null;
   winner: Winner;
   round: number;
+}
+
+export interface MultiplayerGameState {
+  room: GameRoom | null;
+  myRole: Role | null;
+  myPartnerName: string | null;
+  isHost: boolean;
+  error: string | null;
 }
 
 export interface EliminationResult {

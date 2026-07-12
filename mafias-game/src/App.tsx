@@ -1,78 +1,102 @@
 import { useState } from 'react';
-import { useGameState } from './hooks/useGameState';
+import { useMultiplayer } from './hooks/useMultiplayer';
 import Home from './pages/Home';
-import JoinGame from './pages/JoinGame';
-import CreateGame from './pages/CreateGame';
-import RoleAssignment from './pages/RoleAssignment';
-import Dashboard from './pages/Dashboard';
-import Discussion from './pages/Discussion';
-import Voting from './pages/Voting';
-import EliminationReveal from './pages/EliminationReveal';
-import GameOver from './pages/GameOver';
+import CreateRoom from './pages/CreateRoom';
+import JoinRoom from './pages/JoinRoom';
+import Lobby from './pages/Lobby';
+import MultiplayerRoleReveal from './pages/MultiplayerRoleReveal';
+import MultiplayerDashboard from './pages/MultiplayerDashboard';
+import MultiplayerDiscussion from './pages/MultiplayerDiscussion';
+import MultiplayerVoting from './pages/MultiplayerVoting';
+import MultiplayerEliminationReveal from './pages/MultiplayerEliminationReveal';
+import MultiplayerGameOver from './pages/MultiplayerGameOver';
 
-type Route = 'HOME' | 'JOIN' | 'GAME';
+type Screen = 'HOME' | 'CREATE_OR_JOIN';
 
 export default function App() {
-  const [route, setRoute] = useState<Route>('HOME');
-  const game = useGameState();
+  const [screen, setScreen] = useState<Screen>('HOME');
+  const multiplayer = useMultiplayer();
 
-  const handleNewGame = () => {
-    game.resetGame();
-    setRoute('HOME');
+  const handleReset = () => {
+    multiplayer.reset();
+    setScreen('HOME');
   };
 
   return (
     <>
       <div className="grain-overlay" />
       <div className="min-h-dvh bg-ink-950 text-parchment font-body">
-        {route === 'HOME' && (
-          <Home onCreateGame={() => setRoute('GAME')} onJoinGame={() => setRoute('JOIN')} />
-        )}
-
-        {route === 'JOIN' && (
-          <JoinGame onBack={() => setRoute('HOME')} onCreateGame={() => setRoute('GAME')} />
-        )}
-
-        {route === 'GAME' && game.state.phase === 'SETUP' && (
-          <CreateGame onBack={() => setRoute('HOME')} onDealRoles={game.dealRoles} />
-        )}
-
-        {route === 'GAME' && game.state.phase === 'ROLE_ASSIGNMENT' && (
-          <RoleAssignment
-            players={game.state.players}
-            currentIndex={game.state.roleRevealIndex}
-            onAdvance={game.advanceRoleReveal}
+        {screen === 'HOME' && !multiplayer.room && (
+          <Home 
+            onCreateGame={() => setScreen('CREATE_OR_JOIN')} 
+            onJoinGame={() => setScreen('CREATE_OR_JOIN')} 
           />
         )}
 
-        {route === 'GAME' && game.state.phase === 'DASHBOARD' && (
-          <Dashboard
-            dealerName={game.state.dealerName}
-            round={game.state.round}
-            alivePlayers={game.alivePlayers}
-            eliminatedPlayers={game.eliminatedPlayers}
-            onStartDiscussion={game.startDiscussion}
+        {screen === 'CREATE_OR_JOIN' && !multiplayer.room && (
+          <div className="min-h-dvh flex flex-col px-6 py-8">
+            <button onClick={() => setScreen('HOME')} className="font-mono text-xs uppercase tracking-widest text-ash self-start mb-8">
+              ← Back
+            </button>
+            <div className="flex-1 flex flex-col gap-4 items-center justify-center">
+              <CreateRoom onCreateRoom={multiplayer.createRoom} onBack={() => setScreen('HOME')} />
+              <div className="text-ash font-mono text-xs">OR</div>
+              <JoinRoom onJoinRoom={multiplayer.joinRoom} error={multiplayer.error} />
+            </div>
+          </div>
+        )}
+
+        {multiplayer.room && multiplayer.room.phase === 'SETUP' && (
+          <Lobby 
+            room={multiplayer.room}
+            isHost={multiplayer.isHost}
+            onStartGame={multiplayer.startGame}
+            onBack={handleReset}
           />
         )}
 
-        {route === 'GAME' && game.state.phase === 'DISCUSSION' && (
-          <Discussion onProceedToVoting={game.goToVoting} />
-        )}
-
-        {route === 'GAME' && game.state.phase === 'VOTING' && (
-          <Voting alivePlayers={game.alivePlayers} onFinishVoting={game.finishVoting} />
-        )}
-
-        {route === 'GAME' && game.state.phase === 'ELIMINATION_REVEAL' && game.lastEliminatedPlayer && (
-          <EliminationReveal
-            eliminatedPlayer={game.lastEliminatedPlayer}
-            players={game.state.players}
-            onContinue={game.continueAfterElimination}
+        {multiplayer.room && multiplayer.room.phase === 'ROLE_ASSIGNMENT' && (
+          <MultiplayerRoleReveal 
+            myRole={multiplayer.myRole}
+            myPartnerName={multiplayer.myPartnerName}
           />
         )}
 
-        {route === 'GAME' && game.state.phase === 'GAME_OVER' && (
-          <GameOver winner={game.state.winner} players={game.state.players} onNewGame={handleNewGame} />
+        {multiplayer.room && multiplayer.room.phase === 'DASHBOARD' && (
+          <MultiplayerDashboard 
+            room={multiplayer.room}
+            isHost={multiplayer.isHost}
+            onStartTimer={multiplayer.startTimer}
+          />
+        )}
+
+        {multiplayer.room && multiplayer.room.phase === 'DISCUSSION' && (
+          <MultiplayerDiscussion 
+            room={multiplayer.room}
+          />
+        )}
+
+        {multiplayer.room && multiplayer.room.phase === 'VOTING' && (
+          <MultiplayerVoting 
+            room={multiplayer.room}
+            isHost={multiplayer.isHost}
+            onEliminatePlayer={multiplayer.eliminatePlayer}
+          />
+        )}
+
+        {multiplayer.room && multiplayer.room.phase === 'ELIMINATION_REVEAL' && (
+          <MultiplayerEliminationReveal 
+            room={multiplayer.room}
+            isHost={multiplayer.isHost}
+            onContinue={multiplayer.continueAfterElimination}
+          />
+        )}
+
+        {multiplayer.room && multiplayer.room.phase === 'GAME_OVER' && (
+          <MultiplayerGameOver 
+            room={multiplayer.room}
+            onNewGame={handleReset}
+          />
         )}
       </div>
     </>

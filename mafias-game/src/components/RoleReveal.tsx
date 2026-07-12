@@ -7,14 +7,15 @@ interface RoleRevealProps {
   player: Player;
   partners: Player[];
   onConfirm: () => void;
+  hideConfirm?: boolean;
 }
 
-export default function RoleReveal({ player, partners, onConfirm }: RoleRevealProps) {
+export default function RoleReveal({ player, partners, onConfirm, hideConfirm = false }: RoleRevealProps) {
   const [revealed, setRevealed] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
   const isMafia = player.role === Role.MAFIA;
 
-  if (confirmed) {
+  if (confirmed && !hideConfirm) {
     return (
       <div className="flex flex-col items-center justify-center text-center gap-6 py-16">
         <div>
@@ -82,10 +83,14 @@ export default function RoleReveal({ player, partners, onConfirm }: RoleRevealPr
         </button>
       </div>
 
-      {revealed && (
+      {revealed && !hideConfirm && (
         <Button variant="primary" onClick={() => setConfirmed(true)}>
           Got it — hide this card
         </Button>
+      )}
+
+      {revealed && hideConfirm && (
+        <p className="font-body text-ash">Keep this secret — put your phone away</p>
       )}
     </div>
   );
