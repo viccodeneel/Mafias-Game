@@ -1,4 +1,4 @@
-import { GameRoom, Player, Role, DEFAULT_MAFIA_COUNT, DEFAULT_DISCUSSION_SECONDS } from './types';
+import { GameRoom, Player, Role, DEFAULT_MAFIA_COUNT, DEFAULT_DISCUSSION_SECONDS } from './types.js';
 
 export const rooms = new Map<string, GameRoom>();
 

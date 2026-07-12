@@ -7,8 +7,8 @@ import {
   assignRoles,
   checkWinner,
   rooms,
-} from './rooms';
-import { Role, DEFAULT_DISCUSSION_SECONDS } from './types';
+} from './rooms.js';
+import { Role, DEFAULT_DISCUSSION_SECONDS } from './types.js';
 
 export function setupSocket(io: Server) {
   io.on('connection', (socket: Socket) => {
