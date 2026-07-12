@@ -5,13 +5,18 @@ import cors from 'cors';
 import { setupSocket } from './socket.js';
 
 const app = express();
-app.use(cors());
+
+const allowedOrigin = "https://mafias-game.vercel.app";
+
+app.use(cors({
+  origin: allowedOrigin
+}));
 
 const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
+    origin: allowedOrigin,
     methods: ['GET', 'POST'],
   },
 });
