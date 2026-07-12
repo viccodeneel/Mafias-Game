@@ -1,5 +1,5 @@
 import GameStatus from '../components/GameStatus';
-import type { GameRoom, Role } from '../types';
+import type { GameRoom, } from '../types';
 
 interface MultiplayerGameOverProps {
   room: GameRoom;

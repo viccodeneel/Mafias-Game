@@ -1,6 +1,6 @@
 import GameStatus from '../components/GameStatus';
 import Button from '../components/Button';
-import type { GameRoom, Role } from '../types';
+import type { GameRoom, } from '../types';
 
 interface MultiplayerEliminationRevealProps {
   room: GameRoom;
