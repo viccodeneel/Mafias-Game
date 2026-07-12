@@ -5,19 +5,21 @@ import cors from 'cors';
 import { setupSocket } from './socket.js';
 
 const app = express();
-app.use(cors());
+
+const allowedOrigin = "https://mafias-game.vercel.app";
+
+app.use(cors({
+  origin: allowedOrigin
+}));
 
 const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "https://mafias-game.vercel.app/",
+    origin: allowedOrigin,
     methods: ['GET', 'POST'],
   },
 });
-app.use(cors({
-  origin: "https://mafias-game.vercel.app/"
-}));
 
 setupSocket(io);
 
