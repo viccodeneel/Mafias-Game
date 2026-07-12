@@ -1,6 +1,7 @@
 import GameStatus from '../components/GameStatus';
 import Button from '../components/Button';
-import type { GameRoom, } from '../types';
+import type { GameRoom } from '../types';
+import { Role } from '../types';
 
 interface MultiplayerEliminationRevealProps {
   room: GameRoom;
@@ -8,9 +9,14 @@ interface MultiplayerEliminationRevealProps {
   onContinue: () => void;
 }
 
+function getParticipatingPlayers(room: GameRoom) {
+  return room.players.filter(p => p.id !== room.hostId);
+}
+
 export default function MultiplayerEliminationReveal({ room, isHost, onContinue }: MultiplayerEliminationRevealProps) {
-  const eliminatedPlayer = room.lastEliminatedId ? room.players.find(p => p.id === room.lastEliminatedId) : null;
-  const remainingMafia = room.players.filter(p => p.role === 'MAFIA' && p.alive).length;
+  const participatingPlayers = getParticipatingPlayers(room);
+  const eliminatedPlayer = room.lastEliminatedId ? participatingPlayers.find(p => p.id === room.lastEliminatedId) : null;
+  const remainingMafia = participatingPlayers.filter(p => p.role === Role.MAFIA && p.alive).length;
 
   if (!eliminatedPlayer) return null;
 

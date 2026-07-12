@@ -82,7 +82,7 @@ export function setupSocket(io: Server) {
       
       room.phase = 'DISCUSSION';
       room.discussionSeconds = DEFAULT_DISCUSSION_SECONDS;
-      io.to(room.code).emit('timer_started', room.discussionSeconds);
+      io.to(room.code).emit('lobby_updated', room);
 
       if (room.timerInterval) clearInterval(room.timerInterval);
       room.timerInterval = setInterval(() => {
@@ -93,7 +93,7 @@ export function setupSocket(io: Server) {
           if (room.timerInterval) clearInterval(room.timerInterval);
           room.timerInterval = null;
           room.phase = 'VOTING';
-          io.to(room.code).emit('voting_phase', room);
+          io.to(room.code).emit('lobby_updated', room);
         }
       }, 1000);
     });
@@ -116,10 +116,7 @@ export function setupSocket(io: Server) {
         room.phase = 'GAME_OVER';
       }
 
-      io.to(room.code).emit('player_eliminated', {
-        eliminatedPlayer: player,
-        room,
-      });
+      io.to(room.code).emit('lobby_updated', room);
     });
 
     socket.on('continue_after_elimination', (roomCode: string) => {
@@ -128,7 +125,7 @@ export function setupSocket(io: Server) {
       
       if (room.winner) {
         room.phase = 'GAME_OVER';
-        io.to(room.code).emit('game_over', room);
+        io.to(room.code).emit('lobby_updated', room);
       } else {
         room.round++;
         room.phase = 'DASHBOARD';

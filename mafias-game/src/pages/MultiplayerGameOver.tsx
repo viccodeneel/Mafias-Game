@@ -1,15 +1,20 @@
 import GameStatus from '../components/GameStatus';
-import type { GameRoom, } from '../types';
+import type { GameRoom } from '../types';
+import { Role } from '../types';
 
 interface MultiplayerGameOverProps {
   room: GameRoom;
   onNewGame: () => void;
 }
 
+function getParticipatingPlayers(room: GameRoom) {
+  return room.players.filter(p => p.id !== room.hostId);
+}
+
 export default function MultiplayerGameOver({ room, onNewGame }: MultiplayerGameOverProps) {
-  const players = room.players.map(p => ({
+  const players = getParticipatingPlayers(room).map(p => ({
     ...p,
-    role: p.role || 'CIVILIAN',
+    role: p.role || Role.CIVILIAN,
   }));
 
   return (
