@@ -8,6 +8,8 @@ import {
   checkWinner,
   rooms,
   getParticipatingPlayers,
+  setRoomTimer,
+  clearRoomTimer,
 } from './rooms.js';
 import { Role, DEFAULT_DISCUSSION_SECONDS } from './types.js';
 
@@ -85,20 +87,19 @@ export function setupSocket(io: Server) {
       room.isTimerPaused = false;
       io.to(room.code).emit('lobby_updated', room);
 
-      if (room.timerInterval) clearInterval(room.timerInterval);
-      room.timerInterval = setInterval(() => {
+      const interval = setInterval(() => {
         if (!room.isTimerPaused) {
           room.discussionSeconds--;
           io.to(room.code).emit('timer_tick', room.discussionSeconds);
           
           if (room.discussionSeconds <= 0) {
-            if (room.timerInterval) clearInterval(room.timerInterval);
-            room.timerInterval = null;
+            clearRoomTimer(room.code);
             room.phase = 'VOTING';
             io.to(room.code).emit('lobby_updated', room);
           }
         }
       }, 1000);
+      setRoomTimer(room.code, interval);
     });
 
     socket.on('pause_timer', (roomCode: string) => {
@@ -127,10 +128,7 @@ export function setupSocket(io: Server) {
       const room = getRoom(roomCode);
       if (!room || room.hostId !== socket.id) return;
 
-      if (room.timerInterval) {
-        clearInterval(room.timerInterval);
-        room.timerInterval = null;
-      }
+      clearRoomTimer(room.code);
       room.discussionSeconds = 0;
       room.isTimerPaused = true;
       room.phase = 'VOTING';

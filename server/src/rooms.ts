@@ -2,6 +2,31 @@ import { GameRoom, Player, Role, DEFAULT_MAFIA_COUNT, DEFAULT_DISCUSSION_SECONDS
 
 export const rooms = new Map<string, GameRoom>();
 
+// Interval handles live here, NOT on the GameRoom object. GameRoom gets sent
+// to clients via socket.io on every update, and socket.io recursively walks
+// emitted objects to check for binary data. A raw NodeJS.Timeout has
+// internal circular references, so including it on the room object crashes
+// the server with a stack overflow the moment a live timer is emitted.
+const roomTimers = new Map<string, NodeJS.Timeout>();
+
+export function setRoomTimer(code: string, interval: NodeJS.Timeout): void {
+  const existing = roomTimers.get(code);
+  if (existing) clearInterval(existing);
+  roomTimers.set(code, interval);
+}
+
+export function clearRoomTimer(code: string): void {
+  const existing = roomTimers.get(code);
+  if (existing) {
+    clearInterval(existing);
+    roomTimers.delete(code);
+  }
+}
+
+export function hasRoomTimer(code: string): boolean {
+  return roomTimers.has(code);
+}
+
 function generateRoomCode(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let code = '';
@@ -33,7 +58,6 @@ export function createRoom(hostId: string, hostName: string, hostSocketId: strin
     round: 1,
     phase: 'SETUP',
     discussionSeconds: DEFAULT_DISCUSSION_SECONDS,
-    timerInterval: null,
     isTimerPaused: false,
     lastEliminatedId: null,
     winner: null,
@@ -48,10 +72,7 @@ export function getRoom(code: string): GameRoom | undefined {
 }
 
 export function deleteRoom(code: string): void {
-  const room = rooms.get(code);
-  if (room?.timerInterval) {
-    clearInterval(room.timerInterval);
-  }
+  clearRoomTimer(code);
   rooms.delete(code);
 }
 
