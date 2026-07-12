@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import Button from '../components/Button';
+import Rules from '../components/Rules';
 
 interface HomeProps {
   onCreateGame: () => void;
@@ -6,9 +8,17 @@ interface HomeProps {
 }
 
 export default function Home({ onCreateGame, onJoinGame }: HomeProps) {
+  const [showRules, setShowRules] = useState(false);
+
   return (
     <div className="min-h-dvh flex flex-col justify-between px-6 py-10">
-      <div className="flex-1 flex flex-col items-center justify-center text-center gap-6">
+      <button
+        onClick={() => setShowRules(true)}
+        className="self-end text-ash hover:text-parchment text-2xl"
+      >
+        ❓
+      </button>
+      <div className="flex-1 flex flex-col items-center justify-center text-center gap-6 -mt-10">
         <div className="flex items-center gap-3 text-5xl">
           <span>🃏</span>
           <span className="text-ash">/</span>
@@ -35,6 +45,7 @@ export default function Home({ onCreateGame, onJoinGame }: HomeProps) {
           Join Game
         </Button>
       </div>
+      {showRules && <Rules onClose={() => setShowRules(false)} />}
     </div>
   );
 }

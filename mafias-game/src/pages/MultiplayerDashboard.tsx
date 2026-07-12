@@ -1,6 +1,7 @@
 import PlayerCard from '../components/PlayerCard';
 import Button from '../components/Button';
 import type { GameRoom } from '../types';
+import { Role } from '../types';
 
 interface MultiplayerDashboardProps {
   room: GameRoom;
@@ -8,9 +9,14 @@ interface MultiplayerDashboardProps {
   onStartTimer: () => void;
 }
 
+function getParticipatingPlayers(room: GameRoom) {
+  return room.players.filter(p => p.id !== room.hostId);
+}
+
 export default function MultiplayerDashboard({ room, isHost, onStartTimer }: MultiplayerDashboardProps) {
-  const alivePlayers = room.players.filter(p => p.alive);
-  const eliminatedPlayers = room.players.filter(p => !p.alive);
+  const participatingPlayers = getParticipatingPlayers(room);
+  const alivePlayers = participatingPlayers.filter(p => p.alive);
+  const eliminatedPlayers = participatingPlayers.filter(p => !p.alive);
   const host = room.players.find(p => p.id === room.hostId);
 
   return (
@@ -51,6 +57,3 @@ export default function MultiplayerDashboard({ room, isHost, onStartTimer }: Mul
     </div>
   );
 }
-
-// Fix for Role import
-import { Role } from '../types';

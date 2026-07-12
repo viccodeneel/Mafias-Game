@@ -21,7 +21,7 @@ export function createRoom(hostId: string, hostName: string, hostSocketId: strin
     id: hostId,
     name: hostName,
     role: null,
-    alive: true,
+    alive: false,
     socketId: hostSocketId,
   };
 
@@ -52,6 +52,10 @@ export function deleteRoom(code: string): void {
     clearInterval(room.timerInterval);
   }
   rooms.delete(code);
+}
+
+export function getParticipatingPlayers(room: GameRoom): Player[] {
+  return room.players.filter(p => p.id !== room.hostId);
 }
 
 export function addPlayerToRoom(
@@ -94,9 +98,11 @@ export function removePlayerFromRoom(code: string, playerId: string): GameRoom |
     return undefined;
   }
 
-  // If host left, make first remaining player host
+  // If host left, make first remaining player host and mark them as not alive
   if (room.hostId === playerId && room.players.length > 0) {
     room.hostId = room.players[0].id;
+    room.players[0].alive = false;
+    room.players[0].role = null;
   }
 
   return room;
@@ -104,15 +110,22 @@ export function removePlayerFromRoom(code: string, playerId: string): GameRoom |
 
 export function assignRoles(room: GameRoom): void {
   const mafiaCount = DEFAULT_MAFIA_COUNT;
+  const participatingPlayers = getParticipatingPlayers(room);
   
-  // Reset roles and alive status
+  if (participatingPlayers.length < 5) {
+    return;
+  }
+  
+  // Reset roles and alive status for all participating players
   room.players.forEach(p => {
-    p.role = null;
-    p.alive = true;
+    if (p.id !== room.hostId) {
+      p.role = null;
+      p.alive = true;
+    }
   });
 
-  // Randomly select Mafia players
-  const shuffledPlayers = [...room.players].sort(() => Math.random() - 0.5);
+  // Randomly select Mafia players from participating players only
+  const shuffledPlayers = [...participatingPlayers].sort(() => Math.random() - 0.5);
   const mafiaPlayers = shuffledPlayers.slice(0, mafiaCount);
   
   mafiaPlayers.forEach(p => {
@@ -122,10 +135,18 @@ export function assignRoles(room: GameRoom): void {
   shuffledPlayers.slice(mafiaCount).forEach(p => {
     p.role = Role.CIVILIAN;
   });
+
+  // Ensure host has no role and is not alive
+  const host = room.players.find(p => p.id === room.hostId);
+  if (host) {
+    host.role = null;
+    host.alive = false;
+  }
 }
 
 export function checkWinner(room: GameRoom): 'MAFIA' | 'CIVILIANS' | null {
-  const alivePlayers = room.players.filter(p => p.alive);
+  const participatingPlayers = getParticipatingPlayers(room);
+  const alivePlayers = participatingPlayers.filter(p => p.alive);
   const aliveMafia = alivePlayers.filter(p => p.role === Role.MAFIA);
   const aliveCivilians = alivePlayers.filter(p => p.role === Role.CIVILIAN);
 

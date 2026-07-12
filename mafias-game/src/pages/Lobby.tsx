@@ -9,8 +9,13 @@ interface LobbyProps {
   onBack: () => void;
 }
 
+function getParticipatingPlayers(room: GameRoom) {
+  return room.players.filter(p => p.id !== room.hostId);
+}
+
 export default function Lobby({ room, isHost, onStartGame, onBack }: LobbyProps) {
-  const canStart = room.players.length >= 5;
+  const participatingPlayers = getParticipatingPlayers(room);
+  const canStart = participatingPlayers.length >= 5;
 
   return (
     <div className="min-h-dvh flex flex-col px-6 py-8 pb-28">
@@ -21,17 +26,17 @@ export default function Lobby({ room, isHost, onStartGame, onBack }: LobbyProps)
       <div className="mb-6">
         <h1 className="font-display text-2xl text-parchment">Lobby</h1>
         <p className="font-mono text-lg text-brass mt-2">Room Code: {room.code}</p>
-        {isHost && <p className="font-body text-sm text-ash mt-2">You are the host</p>}
+        {isHost && <p className="font-body text-sm text-ash mt-2">You are the host (observing only)</p>}
       </div>
 
       <Card className="mb-6">
         <p className="font-mono text-xs uppercase tracking-wider text-ash mb-3">
-          Players — {room.players.length} connected
+          Players — {participatingPlayers.length} playing, {room.players.length} total
         </p>
         <div className="flex flex-col gap-2">
           {room.players.map((player) => (
             <div key={player.id} className="flex items-center gap-3">
-              <span className="text-green-400">●</span>
+              <span className={player.id === room.hostId ? "text-ash" : "text-green-400"}>●</span>
               <span className="text-parchment font-body">{player.name}</span>
               {player.id === room.hostId && (
                 <span className="text-brass font-mono text-xs uppercase">(Host)</span>
@@ -43,7 +48,7 @@ export default function Lobby({ room, isHost, onStartGame, onBack }: LobbyProps)
 
       {!canStart && (
         <p className="text-blood-bright font-body text-sm mb-4">
-          Need at least 5 players to start
+          Need at least 5 players to start (not including host)
         </p>
       )}
 

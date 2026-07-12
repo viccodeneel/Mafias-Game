@@ -8,8 +8,13 @@ interface MultiplayerVotingProps {
   onEliminatePlayer: (playerId: string) => void;
 }
 
+function getParticipatingPlayers(room: GameRoom) {
+  return room.players.filter(p => p.id !== room.hostId);
+}
+
 export default function MultiplayerVoting({ room, isHost, onEliminatePlayer }: MultiplayerVotingProps) {
-  const alivePlayers = room.players.filter(p => p.alive).map(p => ({
+  const participatingPlayers = getParticipatingPlayers(room);
+  const alivePlayers = participatingPlayers.filter(p => p.alive).map(p => ({
     ...p,
     role: Role.CIVILIAN,
   }));

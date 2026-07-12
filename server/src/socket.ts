@@ -7,6 +7,7 @@ import {
   assignRoles,
   checkWinner,
   rooms,
+  getParticipatingPlayers,
 } from './rooms.js';
 import { Role, DEFAULT_DISCUSSION_SECONDS } from './types.js';
 
@@ -47,16 +48,17 @@ export function setupSocket(io: Server) {
     socket.on('start_game', (roomCode: string) => {
       const room = getRoom(roomCode);
       if (!room || room.hostId !== socket.id) return;
-      if (room.players.length < 5) return;
+      const participatingPlayers = getParticipatingPlayers(room);
+      if (participatingPlayers.length < 5) return;
 
       assignRoles(room);
       room.gameStarted = true;
       room.phase = 'ROLE_ASSIGNMENT';
 
-      // Send private role info
-      room.players.forEach(player => {
+      // Send private role info only to participating players
+      participatingPlayers.forEach(player => {
         if (player.role === Role.MAFIA) {
-          const mafiaPartner = room.players.find(
+          const mafiaPartner = participatingPlayers.find(
             p => p.role === Role.MAFIA && p.id !== player.id
           );
           io.to(player.socketId).emit('receive_role', {
