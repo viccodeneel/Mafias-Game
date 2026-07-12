@@ -11,7 +11,7 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: ['https://mafias-game.vercel.app/'],
+    origin: ['https://mafias-game-px79u49sj-vincent-kodzos-projects.vercel.app/'],
     methods: ['GET', 'POST'],
   },
 });
