@@ -4,9 +4,14 @@ import { DEFAULT_DISCUSSION_SECONDS } from '../hooks/useGameState';
 
 interface MultiplayerDiscussionProps {
   room: GameRoom;
+  isHost: boolean;
+  pauseTimer: () => void;
+  resumeTimer: () => void;
+  resetTimer: () => void;
 }
 
-export default function MultiplayerDiscussion({ room }: MultiplayerDiscussionProps) {
+export default function MultiplayerDiscussion({ room, isHost, pauseTimer, resumeTimer, resetTimer }: MultiplayerDiscussionProps) {
+  const isRunning = room.discussionSeconds > 0 && room.discussionSeconds <= DEFAULT_DISCUSSION_SECONDS && !room.isTimerPaused;
   return (
     <div className="min-h-dvh flex flex-col px-6 py-8">
       <div className="text-center mb-8">
@@ -21,12 +26,12 @@ export default function MultiplayerDiscussion({ room }: MultiplayerDiscussionPro
         <Timer
           secondsLeft={room.discussionSeconds}
           totalSeconds={DEFAULT_DISCUSSION_SECONDS}
-          isRunning={room.discussionSeconds > 0 && room.discussionSeconds <= DEFAULT_DISCUSSION_SECONDS}
+          isRunning={isRunning}
           isFinished={room.discussionSeconds <= 0}
-          onStart={() => {}}
-          onPause={() => {}}
-          onReset={() => {}}
-          hideControls
+          onStart={resumeTimer}
+          onPause={pauseTimer}
+          onReset={resetTimer}
+          hideControls={!isHost}
         />
       </div>
     </div>

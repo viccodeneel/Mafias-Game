@@ -28,6 +28,7 @@ export interface GameRoom {
   round: number;
   phase: GamePhase;
   discussionSeconds: number;
+  isTimerPaused: boolean;
   lastEliminatedId: string | null;
   winner: Winner;
 }

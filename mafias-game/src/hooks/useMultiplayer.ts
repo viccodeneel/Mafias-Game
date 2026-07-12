@@ -7,6 +7,9 @@ export const useMultiplayer = (): MultiplayerGameState & {
   joinRoom: (roomCode: string, playerName: string) => void;
   startGame: () => void;
   startTimer: () => void;
+  pauseTimer: () => void;
+  resumeTimer: () => void;
+  resetTimer: () => void;
   eliminatePlayer: (playerId: string) => void;
   continueAfterElimination: () => void;
   reset: () => void;
@@ -137,6 +140,24 @@ export const useMultiplayer = (): MultiplayerGameState & {
     }
   }, [state.room, socket]);
 
+  const pauseTimer = useCallback(() => {
+    if (state.room) {
+      socket.emit('pause_timer', state.room.code);
+    }
+  }, [state.room, socket]);
+
+  const resumeTimer = useCallback(() => {
+    if (state.room) {
+      socket.emit('resume_timer', state.room.code);
+    }
+  }, [state.room, socket]);
+
+  const resetTimer = useCallback(() => {
+    if (state.room) {
+      socket.emit('reset_timer', state.room.code);
+    }
+  }, [state.room, socket]);
+
   const eliminatePlayer = useCallback((playerId: string) => {
     if (state.room) {
       socket.emit('eliminate_player', state.room.code, playerId);
@@ -169,6 +190,9 @@ export const useMultiplayer = (): MultiplayerGameState & {
     joinRoom,
     startGame,
     startTimer,
+    pauseTimer,
+    resumeTimer,
+    resetTimer,
     eliminatePlayer,
     continueAfterElimination,
     reset,

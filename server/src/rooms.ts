@@ -34,6 +34,7 @@ export function createRoom(hostId: string, hostName: string, hostSocketId: strin
     phase: 'SETUP',
     discussionSeconds: DEFAULT_DISCUSSION_SECONDS,
     timerInterval: null,
+    isTimerPaused: false,
     lastEliminatedId: null,
     winner: null,
   };

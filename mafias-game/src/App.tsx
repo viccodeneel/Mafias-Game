@@ -81,6 +81,10 @@ export default function App() {
         {multiplayer.room && multiplayer.room.phase === 'DISCUSSION' && (
           <MultiplayerDiscussion 
             room={multiplayer.room}
+            isHost={multiplayer.isHost}
+            pauseTimer={multiplayer.pauseTimer}
+            resumeTimer={multiplayer.resumeTimer}
+            resetTimer={multiplayer.resetTimer}
           />
         )}
 

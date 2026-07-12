@@ -22,6 +22,7 @@ export interface GameRoom {
   phase: 'SETUP' | 'ROLE_ASSIGNMENT' | 'DASHBOARD' | 'DISCUSSION' | 'VOTING' | 'ELIMINATION_REVEAL' | 'GAME_OVER';
   discussionSeconds: number;
   timerInterval: NodeJS.Timeout | null;
+  isTimerPaused: boolean;
   lastEliminatedId: string | null;
   winner: 'MAFIA' | 'CIVILIANS' | null;
 }

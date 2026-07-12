@@ -82,20 +82,45 @@ export function setupSocket(io: Server) {
       
       room.phase = 'DISCUSSION';
       room.discussionSeconds = DEFAULT_DISCUSSION_SECONDS;
+      room.isTimerPaused = false;
       io.to(room.code).emit('lobby_updated', room);
 
       if (room.timerInterval) clearInterval(room.timerInterval);
       room.timerInterval = setInterval(() => {
-        room.discussionSeconds--;
-        io.to(room.code).emit('timer_tick', room.discussionSeconds);
-        
-        if (room.discussionSeconds <= 0) {
-          if (room.timerInterval) clearInterval(room.timerInterval);
-          room.timerInterval = null;
-          room.phase = 'VOTING';
-          io.to(room.code).emit('lobby_updated', room);
+        if (!room.isTimerPaused) {
+          room.discussionSeconds--;
+          io.to(room.code).emit('timer_tick', room.discussionSeconds);
+          
+          if (room.discussionSeconds <= 0) {
+            if (room.timerInterval) clearInterval(room.timerInterval);
+            room.timerInterval = null;
+            room.phase = 'VOTING';
+            io.to(room.code).emit('lobby_updated', room);
+          }
         }
       }, 1000);
+    });
+
+    socket.on('pause_timer', (roomCode: string) => {
+      const room = getRoom(roomCode);
+      if (!room || room.hostId !== socket.id) return;
+      room.isTimerPaused = true;
+      io.to(room.code).emit('lobby_updated', room);
+    });
+
+    socket.on('resume_timer', (roomCode: string) => {
+      const room = getRoom(roomCode);
+      if (!room || room.hostId !== socket.id) return;
+      room.isTimerPaused = false;
+      io.to(room.code).emit('lobby_updated', room);
+    });
+
+    socket.on('reset_timer', (roomCode: string) => {
+      const room = getRoom(roomCode);
+      if (!room || room.hostId !== socket.id) return;
+      room.discussionSeconds = DEFAULT_DISCUSSION_SECONDS;
+      room.isTimerPaused = true;
+      io.to(room.code).emit('lobby_updated', room);
     });
 
     socket.on('eliminate_player', (roomCode: string, playerId: string) => {
