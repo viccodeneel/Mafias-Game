@@ -9,6 +9,7 @@ interface TimerProps {
   onStart: () => void;
   onPause: () => void;
   onReset: () => void;
+  hideControls?: boolean;
 }
 
 export default function Timer({
@@ -19,6 +20,7 @@ export default function Timer({
   onStart,
   onPause,
   onReset,
+  hideControls = false,
 }: TimerProps) {
   const progress = totalSeconds > 0 ? secondsLeft / totalSeconds : 0;
   const circumference = 2 * Math.PI * 88;
@@ -52,20 +54,22 @@ export default function Timer({
         </div>
       </div>
 
-      <div className="flex gap-3 w-full">
-        {!isRunning ? (
-          <Button variant="primary" onClick={onStart} disabled={isFinished}>
-            Start
+      {!hideControls && (
+        <div className="flex gap-3 w-full">
+          {!isRunning ? (
+            <Button variant="primary" onClick={onStart} disabled={isFinished}>
+              Start
+            </Button>
+          ) : (
+            <Button variant="secondary" onClick={onPause}>
+              Pause
+            </Button>
+          )}
+          <Button variant="ghost" onClick={onReset}>
+            Reset
           </Button>
-        ) : (
-          <Button variant="secondary" onClick={onPause}>
-            Pause
-          </Button>
-        )}
-        <Button variant="ghost" onClick={onReset}>
-          Reset
-        </Button>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

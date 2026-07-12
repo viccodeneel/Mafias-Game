@@ -21,11 +21,12 @@ export default function MultiplayerDiscussion({ room }: MultiplayerDiscussionPro
         <Timer
           secondsLeft={room.discussionSeconds}
           totalSeconds={DEFAULT_DISCUSSION_SECONDS}
-          isRunning={room.discussionSeconds > 0 && room.discussionSeconds < DEFAULT_DISCUSSION_SECONDS}
+          isRunning={room.discussionSeconds > 0 && room.discussionSeconds <= DEFAULT_DISCUSSION_SECONDS}
           isFinished={room.discussionSeconds <= 0}
           onStart={() => {}}
           onPause={() => {}}
           onReset={() => {}}
+          hideControls
         />
       </div>
     </div>
