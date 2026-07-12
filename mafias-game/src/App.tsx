@@ -56,10 +56,18 @@ export default function App() {
         )}
 
         {multiplayer.room && multiplayer.room.phase === 'ROLE_ASSIGNMENT' && (
-          <MultiplayerRoleReveal 
-            myRole={multiplayer.myRole}
-            myPartnerName={multiplayer.myPartnerName}
-          />
+          multiplayer.isHost ? (
+            <MultiplayerDashboard 
+              room={multiplayer.room}
+              isHost={multiplayer.isHost}
+              onStartTimer={multiplayer.startTimer}
+            />
+          ) : (
+            <MultiplayerRoleReveal 
+              myRole={multiplayer.myRole}
+              myPartnerName={multiplayer.myPartnerName}
+            />
+          )
         )}
 
         {multiplayer.room && multiplayer.room.phase === 'DASHBOARD' && (
