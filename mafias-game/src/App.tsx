@@ -85,6 +85,7 @@ export default function App() {
             pauseTimer={multiplayer.pauseTimer}
             resumeTimer={multiplayer.resumeTimer}
             resetTimer={multiplayer.resetTimer}
+            skipToVoting={multiplayer.skipToVoting}
           />
         )}
 

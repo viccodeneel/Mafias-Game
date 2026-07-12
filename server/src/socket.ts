@@ -123,6 +123,20 @@ export function setupSocket(io: Server) {
       io.to(room.code).emit('lobby_updated', room);
     });
 
+    socket.on('skip_to_voting', (roomCode: string) => {
+      const room = getRoom(roomCode);
+      if (!room || room.hostId !== socket.id) return;
+
+      if (room.timerInterval) {
+        clearInterval(room.timerInterval);
+        room.timerInterval = null;
+      }
+      room.discussionSeconds = 0;
+      room.isTimerPaused = true;
+      room.phase = 'VOTING';
+      io.to(room.code).emit('lobby_updated', room);
+    });
+
     socket.on('eliminate_player', (roomCode: string, playerId: string) => {
       const room = getRoom(roomCode);
       if (!room || room.hostId !== socket.id) return;
@@ -133,13 +147,12 @@ export function setupSocket(io: Server) {
       player.alive = false;
       room.lastEliminatedId = playerId;
       room.phase = 'ELIMINATION_REVEAL';
-      
-      const winner = checkWinner(room);
-      room.winner = winner;
 
-      if (winner) {
-        room.phase = 'GAME_OVER';
-      }
+      // Always show the elimination reveal first, even if this vote ends the
+      // game. The transition to GAME_OVER happens when the host presses
+      // Continue (see continue_after_elimination below), so we just record
+      // the winner here without skipping the reveal screen.
+      room.winner = checkWinner(room);
 
       io.to(room.code).emit('lobby_updated', room);
     });

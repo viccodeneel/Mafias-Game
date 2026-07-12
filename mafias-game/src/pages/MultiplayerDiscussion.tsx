@@ -1,4 +1,5 @@
 import Timer from '../components/Timer';
+import Button from '../components/Button';
 import type { GameRoom } from '../types';
 import { DEFAULT_DISCUSSION_SECONDS } from '../hooks/useGameState';
 
@@ -8,9 +9,17 @@ interface MultiplayerDiscussionProps {
   pauseTimer: () => void;
   resumeTimer: () => void;
   resetTimer: () => void;
+  skipToVoting: () => void;
 }
 
-export default function MultiplayerDiscussion({ room, isHost, pauseTimer, resumeTimer, resetTimer }: MultiplayerDiscussionProps) {
+export default function MultiplayerDiscussion({
+  room,
+  isHost,
+  pauseTimer,
+  resumeTimer,
+  resetTimer,
+  skipToVoting,
+}: MultiplayerDiscussionProps) {
   const isRunning = room.discussionSeconds > 0 && room.discussionSeconds <= DEFAULT_DISCUSSION_SECONDS && !room.isTimerPaused;
   return (
     <div className="min-h-dvh flex flex-col px-6 py-8">
@@ -22,7 +31,7 @@ export default function MultiplayerDiscussion({ room, isHost, pauseTimer, resume
         </p>
       </div>
 
-      <div className="flex-1 flex items-center justify-center">
+      <div className="flex-1 flex flex-col items-center justify-center gap-8">
         <Timer
           secondsLeft={room.discussionSeconds}
           totalSeconds={DEFAULT_DISCUSSION_SECONDS}
@@ -33,6 +42,12 @@ export default function MultiplayerDiscussion({ room, isHost, pauseTimer, resume
           onReset={resetTimer}
           hideControls={!isHost}
         />
+
+        {isHost && (
+          <Button variant="ghost" onClick={skipToVoting} className="max-w-sm">
+            Skip to Voting
+          </Button>
+        )}
       </div>
     </div>
   );

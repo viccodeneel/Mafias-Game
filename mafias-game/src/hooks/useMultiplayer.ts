@@ -10,6 +10,7 @@ export const useMultiplayer = (): MultiplayerGameState & {
   pauseTimer: () => void;
   resumeTimer: () => void;
   resetTimer: () => void;
+  skipToVoting: () => void;
   eliminatePlayer: (playerId: string) => void;
   continueAfterElimination: () => void;
   reset: () => void;
@@ -158,6 +159,12 @@ export const useMultiplayer = (): MultiplayerGameState & {
     }
   }, [state.room, socket]);
 
+  const skipToVoting = useCallback(() => {
+    if (state.room) {
+      socket.emit('skip_to_voting', state.room.code);
+    }
+  }, [state.room, socket]);
+
   const eliminatePlayer = useCallback((playerId: string) => {
     if (state.room) {
       socket.emit('eliminate_player', state.room.code, playerId);
@@ -193,6 +200,7 @@ export const useMultiplayer = (): MultiplayerGameState & {
     pauseTimer,
     resumeTimer,
     resetTimer,
+    skipToVoting,
     eliminatePlayer,
     continueAfterElimination,
     reset,
